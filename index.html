@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Casino</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --accent: #ec4899;
+            --dark: #1e293b;
+            --darker: #0f172a;
+            --light: #f8fafc;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            color: var(--light);
+            min-height: 100vh;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* Навигация */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 11px;
+            text-align: center;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Карточки */
+        .card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Профиль */
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-details h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .user-details p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .balance-card {
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .star-icon {
+            color: var(--secondary);
+            filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.5));
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            border: none;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, var(--success), #34d399);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, var(--danger), #dc2626);
+        }
+
+        /* Покупка звезд */
+        .packs-grid {
+            display: grid;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .pack-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pack-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .pack-card.selected {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            border-color: var(--primary);
+        }
+
+        .pack-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .pack-stars {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .pack-price {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .pack-bonus {
+            font-size: 12px;
+            color: var(--success);
+            text-align: right;
+        }
+
+        /* Игра в ракету */
+        .rocket-game {
+            text-align: center;
+        }
+
+        .rocket-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+            background: linear-gradient(180deg, #1e40af 0%, var(--darker) 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .rocket {
+            width: 60px;
+            height: 100px;
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            border-radius: 50% 50% 40% 40%;
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: bottom 0.1s linear;
+            z-index: 10;
+        }
+
+        .rocket::before {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #f59e0b, #dc2626);
+            border-radius: 50%;
+            filter: blur(15px);
+            animation: flame 0.3s infinite alternate;
+        }
+
+        .explosion {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #ff6b6b, #ffa726, transparent 70%);
+            border-radius: 50%;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.5s ease;
+        }
+
+        .multiplier-display {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .multiplier-line {
+            position: absolute;
+            right: 20px;
+            height: 100%;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .multiplier-markers {
+            position: absolute;
+            right: 10px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 0;
+        }
+
+        .multiplier-marker {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .multiplier-marker.active {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .cashout-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, var(--success), #34d399);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .cashout-btn:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+        }
+
+        .cashout-btn:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+            transform: translateX(-50%) scale(1);
+        }
+
+        .bet-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+
+        .bet-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .bet-btn:hover {
+            transform: scale(1.1);
+            background: var(--primary-dark);
+        }
+
+        .bet-input {
+            width: 150px;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        @keyframes flame {
+            0% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.3); }
+        }
+
+        @keyframes rocketLaunch {
+            0% { bottom: 50px; }
+            100% { bottom: 400px; }
+        }
+
+        @keyframes explode {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        /* Кейсы и остальные стили остаются прежними */
+        .cases-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .case-card {
+            background: linear-gradient(135deg, #334155, #475569);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .case-name {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .case-price {
+            background: var(--secondary);
+            color: var(--darker);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .case-rewards {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .reward-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Модальные окна */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .modal-content {
+            background: var(--dark);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 350px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            z-index: 3000;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0px);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">COSMIC CASINO</div>
+            <div class="subtitle">Играй и выигрывай звезды!</div>
+        </div>
+
+        <!-- Профиль -->
+        <div id="profile-section" class="section">
+            <div class="card">
+                <div class="user-info">
+                    <div class="avatar" id="userAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <h3 id="username">Игрок</h3>
+                        <p id="user-id">ID: Загрузка...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card balance-card">
+                <div class="balance-label">Ваш баланс</div>
+                <div class="balance-amount">
+                    <i class="fas fa-star star-icon"></i>
+                    <span id="balance">0</span>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="showPurchaseModal()">
+                    <i class="fas fa-shopping-cart"></i>
+                    Купить звезды
+                </button>
+                <button class="btn btn-secondary" onclick="withdraw()">
+                    <i class="fas fa-arrow-up"></i>
+                    Вывести
+                </button>
+            </div>
+
+            <!-- Пакеты звезд -->
+            <div class="card">
+                <h3 style="margin-bottom: 15px; text-align: center;">💫 Популярные пакеты</h3>
+                <div class="packs-grid" id="starPacks">
+                    <!-- Пакеты будут добавлены через JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Ракета -->
+        <div id="rocket-section" class="section hidden">
+            <div class="card">
+                <div class="rocket-game">
+                    <h2 style="text-align: center; margin-bottom: 20px;">🚀 Космическая Ракета</h2>
+                    
+                    <div class="rocket-container">
+                        <div class="multiplier-display">
+                            Множитель: <span id="currentMultiplier">1.00x</span>
+                        </div>
+                        
+                        <div class="multiplier-line"></div>
+                        <div class="multiplier-markers" id="multiplierMarkers">
+                            <!-- Маркеры множителей -->
+                        </div>
+                        
+                        <div class="rocket" id="rocket"></div>
+                        <div class="explosion" id="explosion"></div>
+                        
+                        <button class="cashout-btn" id="cashoutBtn" onclick="cashout()" disabled>
+                            💰 Забрать x<span id="cashoutMultiplier">1.00</span>
+                        </button>
+                    </div>
+
+                    <div class="bet-controls">
+                        <button class="bet-btn" onclick="changeBet(-100)">-100</button>
+                        <input type="number" class="bet-input" id="bet-amount" value="100" min="15" max="999999">
+                        <button class="bet-btn" onclick="changeBet(100)">+100</button>
+                    </div>
+
+                    <button class="btn" onclick="startRocketGame()" id="startBtn" style="width: 100%;">
+                        <i class="fas fa-rocket"></i>
+                        Запустить ракету
+                    </button>
+
+                    <div class="game-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="lastMultiplier">-</div>
+                            <div class="stat-label">Последний множитель</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalWins">0</div>
+                            <div class="stat-label">Всего выиграно</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кейсы -->
+        <div id="cases-section" class="section hidden">
+            <div class="card">
+                <h2 style="text-align: center; margin-bottom: 20px;">🎁 Космические Кейсы</h2>
+                <div class="cases-grid">
+                    <div class="case-card" onclick="openCase('dipo')">
+                        <div class="case-header">
+                            <div class="case-name">DIPO CASE</div>
+                            <div class="case-price">50 ⭐</div>
+                        </div>
+                        <div class="case-rewards">
+                            <div class="reward-item"><i class="fas fa-star" style="color: #fbbf24;"></i> 15</div>
+                            <div class="reward-item"><i class="fas fa-star" style="color: #fbbf24;"></i> 25</div>
+                            <div class="reward-item"><i class="fas fa-star" style="color: #fbbf24;"></i> 50</div>
+                            <div class="reward-item"><i class="fas fa-star" style="color: #fbbf24;"></i> 100</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно покупки -->
+    <div id="purchaseModal" class="modal">
+        <div class="modal-content">
+            <h3 style="text-align: center; margin-bottom: 20px;">💫 Покупка звезд</h3>
+            <div id="selectedPackInfo" style="text-align: center; margin-bottom: 20px;">
+                <!-- Информация о выбранном пакете -->
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="processTelegramPurchase()">
+                    <i class="fas fa-credit-card"></i>
+                    Купить через Telegram
+                </button>
+                <button class="btn btn-secondary" onclick="closePurchaseModal()">
+                    Отмена
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Анимация открытия кейса -->
+    <div id="caseAnimation" class="case-animation hidden">
+        <div class="case-container">
+            <div class="rewards-scroll">
+                <div class="rewards-track" id="rewardsTrack">
+                    <!-- Награды будут добавлены через JS -->
+                </div>
+            </div>
+        </div>
+        <div id="finalReward" class="final-reward hidden">
+            <div class="final-amount">
+                <i class="fas fa-star star-icon"></i>
+                <span id="winAmount">0</span>
+            </div>
+            <div class="winner-text">Поздравляем!</div>
+        </div>
+        <button class="btn" onclick="closeCaseAnimation()" style="margin-top: 20px;">
+            <i class="fas fa-check"></i>
+            Получить награду
+        </button>
+    </div>
+
+    <!-- Уведомление -->
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">Успешно!</span>
+    </div>
+
+    <!-- Навигация -->
+    <div class="nav">
+        <button class="nav-btn active" onclick="showSection('profile')">
+            <i class="fas fa-user nav-icon"></i>
+            Профиль
+        </button>
+        <button class="nav-btn" onclick="showSection('rocket')">
+            <i class="fas fa-rocket nav-icon"></i>
+            Ракета
+        </button>
+        <button class="nav-btn" onclick="showSection('cases')">
+            <i class="fas fa-gift nav-icon"></i>
+            Кейсы
+        </button>
+    </div>
+
+    <script>
+        // Данные пользователя
+        let userData = {
+            balance: 0,
+            username: 'Игрок',
+            userId: '123456',
+            photoUrl: null
+        };
+
+        let tg = null;
+        let selectedPack = null;
+        
+        // Игровые переменные
+        let rocketGameActive = false;
+        let currentMultiplier = 1.00;
+        let rocketInterval = null;
+        let currentBet = 0;
+        let totalWins = 0;
+
+        // Пакеты звезд
+        const starPacks = [
+            { id: 1, stars: 100, price: 99, bonus: 0, currency: "XTR" },
+            { id: 2, stars: 500, price: 399, bonus: 50, currency: "XTR" },
+            { id: 3, stars: 1000, price: 699, bonus: 150, currency: "XTR" },
+            { id: 4, stars: 5000, price: 2999, bonus: 1000, currency: "XTR" }
+        ];
+
+        // Инициализация Telegram Web App
+        function initTelegram() {
+            if (window.Telegram && Telegram.WebApp) {
+                tg = Telegram.WebApp;
+                
+                tg.expand();
+                tg.enableClosingConfirmation();
+                
+                const user = tg.initDataUnsafe.user;
+                if (user) {
+                    userData.username = user.first_name || 'Игрок';
+                    userData.userId = user.id;
+                    
+                    if (user.username) {
+                        userData.username = '@' + user.username;
+                    }
+                    
+                    if (user.photo_url) {
+                        userData.photoUrl = user.photo_url;
+                    }
+                    
+                    updateProfile();
+                }
+                
+                initStarPacks();
+                initMultiplierMarkers();
+                showNotification('Добро пожаловать в Cosmic Casino!');
+                setTheme();
+            } else {
+                userData.balance = 1000;
+                userData.username = 'Тестовый Игрок';
+                userData.userId = '123456';
+                updateProfile();
+                initStarPacks();
+                initMultiplierMarkers();
+                showNotification('Режим разработки активирован');
+            }
+        }
+
+        function setTheme() {
+            if (tg) {
+                tg.setHeaderColor('#6366f1');
+                tg.setBackgroundColor('#0f172a');
+            }
+        }
+
+        function updateProfile() {
+            document.getElementById('username').textContent = userData.username;
+            document.getElementById('user-id').textContent = `ID: ${userData.userId}`;
+            document.getElementById('balance').textContent = userData.balance;
+            
+            const avatar = document.getElementById('userAvatar');
+            if (userData.photoUrl) {
+                avatar.innerHTML = `<img src="${userData.photoUrl}" alt="Avatar">`;
+            } else {
+                avatar.innerHTML = '<i class="fas fa-user"></i>';
+            }
+        }
+
+        function initStarPacks() {
+            const packsContainer = document.getElementById('starPacks');
+            packsContainer.innerHTML = '';
+            
+            starPacks.forEach(pack => {
+                const packElement = document.createElement('div');
+                packElement.className = 'pack-card';
+                packElement.onclick = () => selectPack(pack);
+                
+                packElement.innerHTML = `
+                    <div class="pack-header">
+                        <div class="pack-stars">${pack.stars} ⭐</div>
+                        <div class="pack-price">${pack.price} ${pack.currency}</div>
+                    </div>
+                    ${pack.bonus > 0 ? `<div class="pack-bonus">+${pack.bonus} бонус</div>` : ''}
+                `;
+                
+                packsContainer.appendChild(packElement);
+            });
+        }
+
+        function initMultiplierMarkers() {
+            const markersContainer = document.getElementById('multiplierMarkers');
+            markersContainer.innerHTML = '';
+            
+            const multipliers = [1, 2, 3, 5, 10, 25, 50, 100];
+            multipliers.forEach(multiplier => {
+                const marker = document.createElement('div');
+                marker.className = 'multiplier-marker';
+                marker.textContent = multiplier + 'x';
+                marker.id = `marker-${multiplier}`;
+                markersContainer.appendChild(marker);
+            });
+        }
+
+        function selectPack(pack) {
+            selectedPack = pack;
+            
+            document.querySelectorAll('.pack-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            event.currentTarget.classList.add('selected');
+            showPurchaseModal();
+        }
+
+        function showPurchaseModal() {
+            if (!selectedPack) {
+                showNotification('Сначала выберите пакет звезд!', true);
+                return;
+            }
+            
+            const modal = document.getElementById('purchaseModal');
+            const packInfo = document.getElementById('selectedPackInfo');
+            
+            packInfo.innerHTML = `
+                <div style="font-size: 24px; font-weight: bold; color: var(--secondary); margin-bottom: 10px;">
+                    ${selectedPack.stars} ⭐
+                </div>
+                <div style="font-size: 18px; margin-bottom: 5px;">
+                    Цена: ${selectedPack.price} ${selectedPack.currency}
+                </div>
+                ${selectedPack.bonus > 0 ? `
+                    <div style="color: var(--success); font-size: 14px;">
+                        +${selectedPack.bonus} бонусных звезд!
+                    </div>
+                ` : ''}
+                <div style="margin-top: 10px; font-size: 12px; color: #94a3b8;">
+                    Оплата через Telegram Payments
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function closePurchaseModal() {
+            document.getElementById('purchaseModal').style.display = 'none';
+        }
+
+        function processTelegramPurchase() {
+            if (!selectedPack) return;
+            
+            if (tg && tg.initDataUnsafe) {
+                // Создаем инвойс для Telegram Payments
+                const invoice = {
+                    title: `Покупка ${selectedPack.stars} звезд`,
+                    description: `Получите ${selectedPack.stars + selectedPack.bonus} звезд для игры в Cosmic Casino`,
+                    payload: `${selectedPack.id}_${userData.userId}_${Date.now()}`,
+                    currency: selectedPack.currency,
+                    prices: [
+                        {
+                            label: `${selectedPack.stars} звезд + ${selectedPack.bonus} бонус`,
+                            amount: selectedPack.price * 100 // В копейках
+                        }
+                    ]
+                };
+                
+                // В реальном приложении здесь будет вызов:
+                // tg.openInvoice(invoice, onInvoiceClosed);
+                
+                // Имитация платежа для демонстрации
+                showNotification('Открывается окно оплаты Telegram...');
+                
+                setTimeout(() => {
+                    // Имитируем успешную оплату
+                    onInvoiceClosed('paid');
+                }, 2000);
+                
+            } else {
+                showNotification('Функция доступна только в Telegram!', true);
+            }
+        }
+
+        function onInvoiceClosed(status) {
+            if (status === 'paid') {
+                userData.balance += selectedPack.stars + selectedPack.bonus;
+                updateProfile();
+                showNotification(`Успешно! Получено ${selectedPack.stars + selectedPack.bonus} звезд!`);
+                closePurchaseModal();
+                
+                // Можно отправить данные на сервер
+                sendPurchaseToServer(selectedPack);
+            } else {
+                showNotification('Оплата отменена', true);
+            }
+        }
+
+        function sendPurchaseToServer(pack) {
+            // Отправка данных о покупке на ваш сервер
+            console.log('Purchase completed:', pack);
+        }
+
+        // Игра в ракету
+        function startRocketGame() {
+            if (rocketGameActive) return;
+            
+            currentBet = parseInt(document.getElementById('bet-amount').value);
+            
+            if (currentBet < 15 || currentBet > 999999) {
+                showNotification('Ставка должна быть от 15 до 999999 звезд!', true);
+                return;
+            }
+            
+            if (currentBet > userData.balance) {
+                showNotification('Недостаточно звезд!', true);
+                return;
+            }
+            
+            // Снимаем ставку
+            userData.balance -= currentBet;
+            updateProfile();
+            
+            // Запускаем игру
+            rocketGameActive = true;
+            currentMultiplier = 1.00;
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('cashoutBtn').disabled = false;
+            document.getElementById('currentMultiplier').textContent = currentMultiplier.toFixed(2) + 'x';
+            document.getElementById('cashoutMultiplier').textContent = currentMultiplier.toFixed(2);
+            
+            const rocket = document.getElementById('rocket');
+            rocket.style.bottom = '50px';
+            
+            // Запускаем анимацию ракеты
+            let rocketPosition = 50;
+            let speed = 0.5;
+            
+            rocketInterval = setInterval(() => {
+                if (!rocketGameActive) return;
+                
+                rocketPosition += speed;
+                speed += 0.02; // Увеличиваем скорость
+                
+                // Обновляем множитель
+                currentMultiplier = 1 + (rocketPosition - 50) / 100;
+                document.getElementById('currentMultiplier').textContent = currentMultiplier.toFixed(2) + 'x';
+                document.getElementById('cashoutMultiplier').textContent = currentMultiplier.toFixed(2);
+                
+                // Обновляем позицию ракеты
+                rocket.style.bottom = rocketPosition + 'px';
+                
+                // Проверяем маркеры
+                updateMultiplierMarkers();
+                
+                // Случайный взрыв (шанс увеличивается с высотой)
+                const explosionChance = 0.001 + (rocketPosition - 50) * 0.0001;
+                if (Math.random() < explosionChance) {
+                    rocketExplode();
+                }
+                
+                // Максимальная высота
+                if (rocketPosition >= 380) {
+                    rocketExplode();
+                }
+                
+            }, 50);
+        }
+
+        function cashout() {
+            if (!rocketGameActive) return;
+            
+            const winAmount = Math.floor(currentBet * currentMultiplier);
+            userData.balance += winAmount;
+            totalWins += winAmount;
+            
+            updateProfile();
+            document.getElementById('lastMultiplier').textContent = currentMultiplier.toFixed(2) + 'x';
+            document.getElementById('totalWins').textContent = totalWins;
+            
+            showNotification(`Успех! Вы забрали ${winAmount} звезд (${currentMultiplier.toFixed(2)}x)`);
+            resetRocketGame();
+        }
+
+        function rocketExplode() {
+            if (!rocketGameActive) return;
+            
+            rocketGameActive = false;
+            clearInterval(rocketInterval);
+            
+            const explosion = document.getElementById('explosion');
+            const rocket = document.getElementById('rocket');
+            
+            // Анимация взрыва
+            explosion.style.opacity = '1';
+            explosion.style.transform = 'scale(1)';
+            explosion.style.left = (rocket.offsetLeft + 30) + 'px';
+            explosion.style.bottom = (parseInt(rocket.style.bottom) - 50) + 'px';
+            
+            setTimeout(() => {
+                explosion.style.opacity = '0';
+                explosion.style.transform = 'scale(3)';
+            }, 500);
+            
+            showNotification(`Ракета взорвалась! Вы потеряли ${currentBet} звезд`, true);
+            resetRocketGame();
+        }
+
+        function resetRocketGame() {
+            rocketGameActive = false;
+            clearInterval(rocketInterval);
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('cashoutBtn').disabled = true;
+            
+            const rocket = document.getElementById('rocket');
+            const explosion = document.getElementById('explosion');
+            
+            setTimeout(() => {
+                rocket.style.bottom = '50px';
+                explosion.style.opacity = '0';
+                explosion.style.transform = 'scale(0)';
+                resetMultiplierMarkers();
+            }, 1000);
+        }
+
+        function updateMultiplierMarkers() {
+            const markers = [1, 2, 3, 5, 10, 25, 50, 100];
+            markers.forEach(multiplier => {
+                const marker = document.getElementById(`marker-${multiplier}`);
+                if (currentMultiplier >= multiplier) {
+                    marker.classList.add('active');
+                }
+            });
+        }
+
+        function resetMultiplierMarkers() {
+            document.querySelectorAll('.multiplier-marker').forEach(marker => {
+                marker.classList.remove('active');
+            });
+        }
+
+        function changeBet(amount) {
+            const betInput = document.getElementById('bet-amount');
+            let currentBet = parseInt(betInput.value) || 100;
+            let newBet = currentBet + amount;
+            
+            if (newBet >= 15 && newBet <= 999999) {
+                betInput.value = newBet;
+            }
+        }
+
+        // Навигация и остальные функции...
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(`${section}-section`).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
+        }
+
+        function withdraw() {
+            showNotification('Функция вывода скоро будет доступна!');
+        }
+
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notificationText');
+            const icon = notification.querySelector('i');
+            
+            text.textContent = message;
+            notification.classList.remove('error');
+            
+            if (isError) {
+                notification.classList.add('error');
+                icon.className = 'fas fa-exclamation-circle';
+            } else {
+                icon.className = 'fas fa-check-circle';
+            }
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            initTelegram();
+            updateProfile();
+            
+            document.getElementById('bet-amount').addEventListener('change', function() {
+                let value = parseInt(this.value);
+                if (value < 15) this.value = 15;
+                if (value > 999999) this.value = 999999;
+            });
+        });
+
+        // Функции для кейсов (остаются без изменений)
+        function openCase(caseType) {
+            if (userData.balance < 50) {
+                showNotification('Недостаточно звезд для открытия кейса!', true);
+                return;
+            }
+            
+            userData.balance -= 50;
+            updateProfile();
+            
+            const rewards = [15, 25, 50, 100];
+            const probabilities = [0.7, 0.2, 0.09, 0.01];
+            
+            let random = Math.random();
+            let cumulative = 0;
+            let rewardIndex = 0;
+            
+            for (let i = 0; i < probabilities.length; i++) {
+                cumulative += probabilities[i];
+                if (random <= cumulative) {
+                    rewardIndex = i;
+                    break;
+                }
+            }
+            
+            const finalReward = rewards[rewardIndex];
+            showCaseAnimation(finalReward);
+        }
+
+        function showCaseAnimation(finalReward) {
+            const animation = document.getElementById('caseAnimation');
+            const track = document.getElementById('rewardsTrack');
+            const final = document.getElementById('finalReward');
+            
+            track.innerHTML = '';
+            const rewards = [15, 25, 50, 100, 15, 25, 50, 100, 15, 25, 50, finalReward];
+            
+            rewards.forEach((reward, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'reward-slide';
+                slide.innerHTML = `
+                    <i class="fas fa-star reward-star"></i>
+                    <div class="reward-amount">${reward}</div>
+                `;
+                track.appendChild(slide);
+            });
+            
+            animation.classList.remove('hidden');
+            final.classList.add('hidden');
+            
+            setTimeout(() => {
+                const trackHeight = track.scrollHeight;
+                const containerHeight = 200;
+                const finalPosition = trackHeight - containerHeight - 200;
+                
+                track.style.transform = `translateY(-${finalPosition}px)`;
+                
+                setTimeout(() => {
+                    final.classList.remove('hidden');
+                    document.getElementById('winAmount').textContent = finalReward;
+                    userData.balance += finalReward;
+                    updateProfile();
+                }, 4000);
+                
+            }, 100);
+        }
+
+        function closeCaseAnimation() {
+            document.getElementById('caseAnimation').classList.add('hidden');
+            showNotification(`Получено ${document.getElementById('winAmount').textContent} звезд!`);
+        }
+    </script>
+</body>
+</html>
